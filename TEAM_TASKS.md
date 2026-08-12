@@ -1,127 +1,121 @@
-# Synops — Execution Plan (2–3 Week Sprint)
+# Synops — Features & Branch Assignments
 
-This plan replaces the full feature list for the current sprint. The goal is a demoable, end-to-end workflow, not the full long-term scope.
+One document, one place: what is being built, who is building it, and which branch it lives on. This is the trimmed sprint scope, not the full README version.
 
-## 0. The One Rule
+## How to use this
 
-No one builds ahead of what is connected. A pretty UI with no working backend, or a backend with no UI, both fail the demo. At every point, prioritize an ugly-but-working end-to-end flow over a polished broken one.
+1. Find your name below.
+2. `git checkout <your-branch>`.
+3. Work through your checklist top to bottom.
+4. Open a PR into `dev` when a chunk is done.
+5. Update the checkboxes or post progress in the group chat.
 
-## 1. What We Are Cutting
+Golden rule: do not build ahead of what's connected. Working end-to-end matters more than polish.
 
-- Real similarity checker: fake it with a hardcoded percentage and a canned matched paragraph.
-- Email verification and forgot password: cut.
-- Real notifications: fake it with a simple in-app list.
-- Admin analytics and charts: cut or fake with a simple table.
-- DOCX/PDF to Markdown conversion: cut.
-- Multi-department support: cut and hardcode one department.
+## Build order
 
-## 2. What Survives
+1. Saman - schema first.
+2. Jishan - auth next.
+3. Yasin + Saman - backend APIs in parallel once schema and auth exist.
+4. Tutul - UI in parallel using mock data, then swap to real endpoints.
+5. Merge everyone into `dev`, test the full loop, then `dev` to `main` for the demo.
 
-Core demo loop:
+## Yasin - `feature/yasin-backend-similarity`
 
-Student submits proposal
-→ Supervisor reviews, comments, approves
-→ Student uploads final report
-→ Fake similarity check runs and shows a percentage
-→ Admin schedules the defense
-→ Board member evaluates and enters marks
-→ Result is shown
+Owns: Thesis/Submission core API + fake similarity check service.
 
-If this works end to end with real data flowing through a real database, the project passes.
+- [ ] Express project structure (`controllers/`, `models/`, `routes/`, `middleware/`, `services/`)
+- [ ] `Thesis` model + routes: create, get, update status
+- [ ] `Submission` model + routes: upload (PDF/DOCX, 20MB max), version tracking
+- [ ] File upload middleware with type and size validation
+- [ ] Fake similarity check endpoint: `POST /api/similarity/check` returns a hardcoded or randomized percentage plus a canned matched paragraph note
+- [ ] `SimilarityResult` storage + `GET /api/similarity/:submissionId`
+- [ ] `Comments` model + API: post comment, list by thesis, single reply field only
+- [ ] Basic repository search endpoint: by title and student only
+- [ ] Document endpoints in `docs/api-spec.md`
 
-## 3. Week-by-Week Plan
+Explicitly cut: real plagiarism detection, DOCX to Markdown conversion, advanced search.
 
-### Week 1 — Foundation
+## Tutul - `feature/tutul-frontend-dashboards`
 
-Day 1:
-- Yasin: set up Express project structure.
-- Tutul: set up React project and install dependencies.
-- Saman: finalize the trimmed DB schema.
-- Jishan: set up JWT auth skeleton.
+Owns: Student and Faculty UI, wired to real endpoints as they land.
 
-Day 2:
-- Yasin: thesis/proposal models and routes with dummy data if needed.
-- Tutul: login page and role-based routing shell.
-- Saman: run the schema and seed 3 test users.
-- Jishan: login/logout API and role middleware.
+- [ ] React project setup and routing shell (student, faculty, admin route groups)
+- [ ] Login page + role-based redirect after auth
+- [ ] Student dashboard: proposal status, submission list, defense info
+- [ ] Proposal submission form that calls the real API
+- [ ] Submission/file upload form that calls the real API
+- [ ] Similarity result display with the fake percentage and note
+- [ ] Supervisor dashboard: list of assigned students and thesis status
+- [ ] Supervisor review screen: approve, reject, comment
+- [ ] Comment thread UI with one level only
+- [ ] Basic styling pass after the full loop works
 
-Day 3:
-- Yasin: wire proposal API to the real DB.
-- Tutul: student dashboard shell.
-- Saman: admin read-only user list.
-- Jishan: wire auth into the backend routes.
+Explicitly cut: polished design system, notification bell unless time remains, multi-department UI.
 
-Day 4:
-- Yasin: submission and file upload API.
-- Tutul: proposal submission form wired to the real API.
-- Saman: admin assign supervisor UI.
-- Jishan: defense schedule model and basic API.
+## Saman - `feature/saman-admin-db`
 
-Day 5:
-- Yasin: fake similarity check endpoint.
-- Tutul: supervisor review page.
-- Saman: admin defense scheduling form.
-- Jishan: evaluation model and API.
+Owns: trimmed DB schema first, then admin UI.
 
-Days 6–7:
-- Yasin: comments API.
-- Tutul: comment thread UI.
-- Saman: repository search.
-- Jishan: in-app notifications model.
+- [ ] Finalize trimmed schema first
+- [ ] `database/schema.sql` plus seed script with 3 test users and 1–2 sample theses
+- [ ] Admin user list view
+- [ ] Admin assign supervisor to a thesis
+- [ ] Admin defense scheduling form: room, date, time, board member(s)
+- [ ] Repository search page using Yasin's endpoint
+- [ ] Admin view of all theses and status in a simple table
 
-End of Week 1 checkpoint: login works for all 3 roles, and a student can submit a proposal that is visible to the supervisor.
+Trimmed schema:
 
-### Week 2 — Connect the Full Loop
+```
+Users              — id, name, email, password_hash, role
+Thesis             — id, title, abstract, student_id, supervisor_id, status
+Submission         — id, thesis_id, file_path, version_no, submitted_at
+SimilarityResult   — id, submission_id, similarity_pct, matched_note
+Comments           — id, thesis_id, author_id, content, created_at
+DefenseSchedule    — id, thesis_id, room, date, time
+BoardMembers       — id, defense_id, faculty_id
+Evaluation         — id, defense_id, board_member_id, report_marks, presentation_marks, viva_marks, total_marks
+Notifications      — id, user_id, message, is_read, created_at
+```
 
-- Wire submission → fake similarity check → display result on both student and supervisor sides.
-- Make supervisor approve/reject/comment flow work end to end.
-- Let admin assign a defense date, room, and board members.
-- Let board members see the assigned thesis, enter marks, and auto-calculate total marks.
-- Let the student see defense info and result.
+Dropped: Departments, separate Proposal table, separate Files table.
 
-End of Week 2 checkpoint: the full loop works with ugly styling if needed.
+Explicitly cut: department management, analytics reports, semester archiving.
 
-### Week 3 — Glue and Demo Prep
+## Jishan - `feature/jishan-auth-scheduling`
 
-- No new features.
-- Fix bugs and polish only.
-- Seed the database with realistic fake data.
-- Write the demo script.
-- Run the demo twice before the real presentation.
+Owns: auth and defense/evaluation/notifications.
 
-## 4. Trimmed DB Schema
+- [ ] JWT login/logout API
+- [ ] Role middleware using `req.user.role`
+- [ ] 3 seeded test accounts, one per role; skip email verification and forgot password
+- [ ] `DefenseSchedule` model + API: create/update schedule, assign board members
+- [ ] `Evaluation` model + API: enter marks and auto-calculate total
+- [ ] `Notifications` model + simple in-app API
+- [ ] Notification triggers for proposal approved, comment added, defense scheduled
 
-Use only the tables needed for the surviving features:
+Explicitly cut: email verification, forgot password, real email or push notifications, multiple evaluator averaging.
 
-- Users — id, name, email, password_hash, role
-- Thesis — id, title, abstract, student_id, supervisor_id, status
-- Submission — id, thesis_id, file_path, version_no, submitted_at
-- SimilarityResult — id, submission_id, similarity_pct, matched_note
-- Comments — id, thesis_id, author_id, content, created_at
-- DefenseSchedule — id, thesis_id, room, date, time
-- BoardMembers — id, defense_id, faculty_id
-- Evaluation — id, defense_id, board_member_id, report_marks, presentation_marks, viva_marks, total_marks
-- Notifications — id, user_id, message, is_read, created_at
+## Cross-team dependencies
 
-Dropped for the sprint:
-- Departments
-- Proposal table
-- Files table
+| You | Waiting on | For |
+|---|---|---|
+| Yasin | Saman's schema | Thesis/Submission models |
+| Yasin | Jishan's auth middleware | Protecting proposal/submission routes |
+| Tutul | Yasin's API + Jishan's auth | Real data instead of mocks |
+| Saman | None | Schema is the starting point |
+| Jishan | Saman's `Users` table | Login query |
 
-## 5. What Each Person Owns
+## If someone falls behind
 
-- Yasin — Thesis/Submission API, fake similarity endpoint, comments API.
-- Tutul — Student and Faculty pages, wired to real endpoints as they land.
-- Saman — Schema first, then admin pages and repository search.
-- Jishan — Auth, defense scheduling, evaluation, notifications.
+Cut in this order:
 
-## 6. If You Fall Behind
+1. Repository search → replace with a coming soon placeholder.
+2. Notifications → cut entirely and mention it verbally.
+3. Comment replies → use a single comment field.
+4. Multiple board members → one evaluator is enough.
 
-Cut in this order, but do not touch the core loop:
+Never cut: proposal submit → supervisor review → file submission → similarity result → defense schedule → evaluation.
 
-1. Repository search.
-2. Notifications.
-3. Comments thread depth.
-4. Multiple board members.
-
-The core loop is non-negotiable: proposal → review → submission → similarity → defense → evaluation.
+See [README.md](README.md) for the full project overview and [PLAN.md](PLAN.md) for the trimmed sprint timeline and rationale.

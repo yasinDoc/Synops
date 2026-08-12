@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const branchCards = [
   {
@@ -25,13 +25,72 @@ const branchCards = [
 
 export default function App() {
   const [health, setHealth] = useState(null);
+  const [session, setSession] = useState(null);
+  const [loginForm, setLoginForm] = useState({
+    email: 'student@synops.local',
+    password: 'student123'
+  });
+  const [error, setError] = useState('');
+  const apiUrl = useMemo(() => import.meta.env.VITE_API_URL || '/api', []);
 
   useEffect(() => {
     fetch('/api/health')
       .then((response) => response.json())
       .then(setHealth)
       .catch(() => setHealth({ ok: false, message: 'API not connected yet' }));
+
+    const token = window.localStorage.getItem('synops_token');
+    if (token) {
+      fetch('/api/auth/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then((response) => response.json())
+        .then((payload) => {
+          if (payload.user) {
+            setSession({ ...payload.user, token });
+          }
+        })
+        .catch(() => {
+          window.localStorage.removeItem('synops_token');
+        });
+    }
   }, []);
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setLoginForm((current) => ({ ...current, [name]: value }));
+  }
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    setError('');
+
+    const response = await fetch(`${apiUrl}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(loginForm)
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+      setError(payload.message || 'Login failed');
+      return;
+    }
+
+    window.localStorage.setItem('synops_token', payload.token);
+    setSession({ ...payload.user, token: payload.token });
+  }
+
+  async function handleLogout() {
+    window.localStorage.removeItem('synops_token');
+    setSession(null);
+    await fetch(`${apiUrl}/auth/logout`, { method: 'POST' });
+  }
 
   return (
     <main className="page-shell">
@@ -47,6 +106,38 @@ export default function App() {
           </span>
           <span>{health?.message || 'Loading backend status...'}</span>
         </div>
+      </section>
+
+      <section className="card auth-card">
+        <div>
+          <p className="card-name">Auth starter</p>
+          <h2>{session ? `Logged in as ${session.name}` : 'Login with a demo account'}</h2>
+          <p>
+            Student: student@synops.local / student123, Faculty: faculty@synops.local / faculty123,
+            Admin: admin@synops.local / admin123
+          </p>
+        </div>
+
+        {session ? (
+          <div className="auth-session">
+            <p><strong>Role:</strong> {session.role}</p>
+            <p><strong>Email:</strong> {session.email}</p>
+            <button className="button" type="button" onClick={handleLogout}>Logout</button>
+          </div>
+        ) : (
+          <form className="auth-form" onSubmit={handleLogin}>
+            <label>
+              Email
+              <input name="email" value={loginForm.email} onChange={handleChange} />
+            </label>
+            <label>
+              Password
+              <input name="password" type="password" value={loginForm.password} onChange={handleChange} />
+            </label>
+            {error ? <p className="error-text">{error}</p> : null}
+            <button className="button" type="submit">Login</button>
+          </form>
+        )}
       </section>
 
       <section className="grid">

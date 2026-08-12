@@ -102,6 +102,54 @@ h1 {
   margin: 20px 0;
 }
 
+.auth-card {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+  max-width: 360px;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.94rem;
+  color: #dbeafe;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.9);
+  color: #eff6ff;
+}
+
+.auth-session {
+  display: grid;
+  gap: 10px;
+  max-width: 360px;
+}
+
+.button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.error-text {
+  color: #fca5a5;
+}
+
 .card {
   padding: 18px;
 }

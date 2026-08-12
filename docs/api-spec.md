@@ -10,6 +10,8 @@ This file is the starter API map for the sprint scope.
 ## Auth
 
 - `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
 
 ## Thesis and Submission
 

@@ -1,0 +1,51 @@
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(191) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL,
+  department_id INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE departments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL UNIQUE
+);
+
+CREATE TABLE students (
+  user_id INT PRIMARY KEY,
+  student_id_number VARCHAR(100) NOT NULL,
+  batch VARCHAR(50) NOT NULL,
+  supervisor_id INT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE faculty (
+  user_id INT PRIMARY KEY,
+  department_id INT NOT NULL,
+  designation VARCHAR(100) NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (department_id) REFERENCES departments(id)
+);
+
+CREATE TABLE theses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  abstract TEXT NOT NULL,
+  research_area VARCHAR(255),
+  student_id INT NOT NULL,
+  supervisor_id INT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'draft',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE proposals (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  thesis_id INT NOT NULL,
+  submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status VARCHAR(50) NOT NULL DEFAULT 'pending',
+  FOREIGN KEY (thesis_id) REFERENCES theses(id)
+);

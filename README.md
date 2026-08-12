@@ -162,3 +162,13 @@ Use short Conventional-style messages:
 - Decide file storage: local or S3
 - Decide similarity scope: internal repo only or web sources
 
+## Sprint Execution Plan
+
+For the current 2–3 week build, follow [TEAM_TASKS.md](TEAM_TASKS.md) instead of the long-term feature list. It keeps the project small enough to demo:
+
+- fake the similarity checker
+- skip email verification and forgot password
+- use one department only
+- keep notifications in-app only
+- focus on the core loop: proposal → review → submission → similarity → defense → evaluation
+

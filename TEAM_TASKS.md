@@ -24,15 +24,15 @@ Golden rule: do not build ahead of what's connected. Working end-to-end matters 
 
 Owns: Thesis/Submission core API + fake similarity check service.
 
-- [ ] Express project structure (`controllers/`, `models/`, `routes/`, `middleware/`, `services/`)
-- [ ] `Thesis` model + routes: create, get, update status
-- [ ] `Submission` model + routes: upload (PDF/DOCX, 20MB max), version tracking
-- [ ] File upload middleware with type and size validation
-- [ ] Fake similarity check endpoint: `POST /api/similarity/check` returns a hardcoded or randomized percentage plus a canned matched paragraph note
-- [ ] `SimilarityResult` storage + `GET /api/similarity/:submissionId`
-- [ ] `Comments` model + API: post comment, list by thesis, single reply field only
-- [ ] Basic repository search endpoint: by title and student only
-- [ ] Document endpoints in `docs/api-spec.md`
+- [x] Express project structure (`controllers/`, `models/`, `routes/`, `middleware/`, `services/`)
+- [x] `Thesis` model + routes: create, get, update status
+- [x] `Submission` model + routes: upload (PDF/DOCX, 20MB max), version tracking
+- [x] File upload middleware with type and size validation
+- [x] Fake similarity check endpoint: `POST /api/similarity/check` returns a hardcoded or randomized percentage plus a canned matched paragraph note
+- [x] `SimilarityResult` storage + `GET /api/similarity/:submissionId`
+- [x] `Comments` model + API: post comment, list by thesis, single reply field only
+- [x] Basic repository search endpoint: by title and student only
+- [x] Document endpoints in `docs/api-spec.md`
 
 Explicitly cut: real plagiarism detection, DOCX to Markdown conversion, advanced search.
 

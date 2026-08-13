@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAuth, requireRole } from '../middlewares/auth.js';
 
 const comments = [
   {
@@ -12,6 +13,8 @@ const comments = [
 
 const router = Router();
 
+router.use(requireAuth);
+
 router.get('/thesis/:thesisId', (req, res) => {
   const thesisId = Number(req.params.thesisId);
   res.json({
@@ -19,7 +22,7 @@ router.get('/thesis/:thesisId', (req, res) => {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', requireRole('student', 'faculty', 'admin'), (req, res) => {
   const { thesisId, authorId, content } = req.body;
 
   if (!thesisId || !authorId || !content) {

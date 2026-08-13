@@ -1,13 +1,32 @@
 import { Router } from 'express';
 import { theses, createThesis } from '../store/thesesStore.js';
+import { requireAuth, requireRole } from '../middlewares/auth.js';
 
 const router = Router();
+
+router.use(requireAuth);
 
 router.get('/', (_req, res) => {
   res.json({
     items: theses,
     count: theses.length
   });
+});
+
+router.get('/search', (req, res) => {
+  const query = String(req.query.q || '').trim().toLowerCase();
+
+  if (!query) {
+    return res.json({ items: theses, count: theses.length });
+  }
+
+  const items = theses.filter((thesis) => {
+    const title = String(thesis.title || '').toLowerCase();
+    const studentName = String(thesis.studentName || '').toLowerCase();
+    return title.includes(query) || studentName.includes(query);
+  });
+
+  return res.json({ items, count: items.length });
 });
 
 router.get('/:id', (req, res) => {
@@ -20,7 +39,7 @@ router.get('/:id', (req, res) => {
   return res.json({ thesis });
 });
 
-router.post('/', (req, res) => {
+router.post('/', requireRole('student', 'admin'), (req, res) => {
   const { title, abstract, studentName, supervisorName } = req.body;
 
   if (!title || !abstract || !studentName) {
@@ -37,7 +56,7 @@ router.post('/', (req, res) => {
   });
 });
 
-router.patch('/:id/status', (req, res) => {
+router.patch('/:id/status', requireRole('faculty', 'admin'), (req, res) => {
   const thesis = theses.find((item) => item.id === Number(req.params.id));
 
   if (!thesis) {

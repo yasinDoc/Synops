@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAuth, requireRole } from '../middlewares/auth.js';
 
 const similarityResults = [
   {
@@ -10,7 +11,9 @@ const similarityResults = [
 
 const router = Router();
 
-router.post('/check', (req, res) => {
+router.use(requireAuth);
+
+router.post('/check', requireRole('student', 'faculty', 'admin'), (req, res) => {
   const { submissionId } = req.body;
 
   if (!submissionId) {
@@ -35,7 +38,7 @@ router.post('/check', (req, res) => {
   return res.status(201).json({ message: 'Fake similarity check completed', result });
 });
 
-router.get('/:submissionId', (req, res) => {
+router.get('/:submissionId', requireRole('student', 'faculty', 'admin'), (req, res) => {
   const submissionId = Number(req.params.submissionId);
   const result = similarityResults.find((item) => item.submissionId === submissionId);
 

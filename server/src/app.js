@@ -30,6 +30,20 @@ export function createApp() {
   app.use('/api/defense', defenseRouter);
   app.use('/api/evaluation', evaluationRouter);
 
+  app.use((error, _req, res, next) => {
+    if (!error) {
+      next();
+      return;
+    }
+
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      res.status(400).json({ message: 'File is too large. Max size is 20MB.' });
+      return;
+    }
+
+    res.status(400).json({ message: error.message || 'Request failed' });
+  });
+
   app.use((req, res) => {
     res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` });
   });

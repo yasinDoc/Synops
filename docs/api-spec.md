@@ -2,6 +2,8 @@
 
 This file is the starter API map for the sprint scope.
 
+Protected endpoints require: `Authorization: Bearer <token>`.
+
 ## Base
 
 - `GET /api` - API status
@@ -16,11 +18,12 @@ This file is the starter API map for the sprint scope.
 ## Thesis and Submission
 
 - `GET /api/theses`
+- `GET /api/theses/search?q=keyword` (title or student name)
 - `POST /api/theses`
 - `GET /api/theses/:id`
 - `PATCH /api/theses/:id/status`
 - `GET /api/submissions`
-- `POST /api/submissions`
+- `POST /api/submissions` (multipart form-data: `thesisId`, `reportFile`)
 
 ## Similarity
 

@@ -5,9 +5,10 @@ Synops is a web-based thesis management system for students, faculty, and admins
 ## Team & Branch Ownership
 
 - Yasin - `feature/yasin-backend` - backend API, database models, similarity checker
-- Tutul - `feature/tutul-frontend` - React UI, dashboards, forms
+- Tutul - `feature/tutul-frontend-dashboards` - student-facing React UI, dashboards, forms
+- Mahim - `feature/mahim-faculty-notifications` - faculty-facing React UI, in-app notifications
 - Saman - `feature/saman-admin-db` - admin module, DB schema, seed data
-- Jishan - `feature/jishan-auth-scheduling` - auth, roles, defense scheduling, notifications
+- Jishan - `feature/jishan-auth-scheduling` - auth, roles, defense scheduling, evaluation
 
 Shared branches:
 - `dev` - integration branch for current work

@@ -17,7 +17,7 @@ Golden rule: do not build ahead of what's connected. Working end-to-end matters 
 1. Saman - schema first.
 2. Jishan - auth next.
 3. Yasin + Saman - backend APIs in parallel once schema and auth exist.
-4. Tutul - UI in parallel using mock data, then swap to real endpoints.
+4. Tutul + Mahim - UI in parallel using mock data, then swap to real endpoints.
 5. Merge everyone into `dev`, test the full loop, then `dev` to `main` for the demo.
 
 ## Yasin - `feature/yasin-backend-similarity`
@@ -38,7 +38,7 @@ Explicitly cut: real plagiarism detection, DOCX to Markdown conversion, advanced
 
 ## Tutul - `feature/tutul-frontend-dashboards`
 
-Owns: Student and Faculty UI, wired to real endpoints as they land.
+Owns: Student-facing UI, wired to real endpoints as they land.
 
 - [ ] React project setup and routing shell (student, faculty, admin route groups)
 - [ ] Login page + role-based redirect after auth
@@ -46,12 +46,21 @@ Owns: Student and Faculty UI, wired to real endpoints as they land.
 - [ ] Proposal submission form that calls the real API
 - [ ] Submission/file upload form that calls the real API
 - [ ] Similarity result display with the fake percentage and note
+
+Explicitly cut: polished design system, multi-department UI.
+
+## Mahim - `feature/mahim-faculty-notifications`
+
+Owns: Faculty-facing UI + in-app notifications.
+
 - [ ] Supervisor dashboard: list of assigned students and thesis status
 - [ ] Supervisor review screen: approve, reject, comment
 - [ ] Comment thread UI with one level only
 - [ ] Basic styling pass after the full loop works
+- [ ] `Notifications` model + simple in-app API
+- [ ] Notification triggers for proposal approved, comment added, defense scheduled
 
-Explicitly cut: polished design system, notification bell unless time remains, multi-department UI.
+Explicitly cut: notification bell unless time remains, real email or push notifications.
 
 ## Saman - `feature/saman-admin-db`
 
@@ -85,17 +94,15 @@ Explicitly cut: department management, analytics reports, semester archiving.
 
 ## Jishan - `feature/jishan-auth-scheduling`
 
-Owns: auth and defense/evaluation/notifications.
+Owns: auth and defense/evaluation.
 
 - [ ] JWT login/logout API
 - [ ] Role middleware using `req.user.role`
 - [ ] 3 seeded test accounts, one per role; skip email verification and forgot password
 - [ ] `DefenseSchedule` model + API: create/update schedule, assign board members
 - [ ] `Evaluation` model + API: enter marks and auto-calculate total
-- [ ] `Notifications` model + simple in-app API
-- [ ] Notification triggers for proposal approved, comment added, defense scheduled
 
-Explicitly cut: email verification, forgot password, real email or push notifications, multiple evaluator averaging.
+Explicitly cut: email verification, forgot password, multiple evaluator averaging.
 
 ## Cross-team dependencies
 
@@ -104,6 +111,8 @@ Explicitly cut: email verification, forgot password, real email or push notifica
 | Yasin | Saman's schema | Thesis/Submission models |
 | Yasin | Jishan's auth middleware | Protecting proposal/submission routes |
 | Tutul | Yasin's API + Jishan's auth | Real data instead of mocks |
+| Mahim | Yasin's API + Jishan's auth | Real data instead of mocks |
+| Mahim | Jishan's defense/evaluation APIs | Notification triggers |
 | Saman | None | Schema is the starting point |
 | Jishan | Saman's `Users` table | Login query |
 

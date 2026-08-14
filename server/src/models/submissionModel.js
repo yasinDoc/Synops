@@ -1,4 +1,4 @@
-export const submissions = [
+const submissions = [
   {
     id: 1,
     thesisId: 1,
@@ -8,12 +8,21 @@ export const submissions = [
   }
 ];
 
+export function getAllSubmissions() {
+  return submissions;
+}
+
+export function findSubmissionById(id) {
+  return submissions.find((item) => item.id === Number(id));
+}
+
 export function createSubmission({ thesisId, filePath }) {
+  const normalizedThesisId = Number(thesisId);
   const submission = {
     id: submissions.length + 1,
-    thesisId: Number(thesisId),
+    thesisId: normalizedThesisId,
     filePath,
-    versionNo: submissions.filter((item) => item.thesisId === Number(thesisId)).length + 1,
+    versionNo: submissions.filter((item) => item.thesisId === normalizedThesisId).length + 1,
     submittedAt: new Date().toISOString()
   };
 

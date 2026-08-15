@@ -1,20 +1,38 @@
 import { Router } from 'express';
+import { findThesisById } from '../models/thesisModel.js';
+import { findUserById } from '../store/usersStore.js';
 
 const schedules = [
   {
     id: 1,
     thesisId: 1,
-    room: 'A-204',
+    room: 'Auditorium A-204',
     date: '2026-09-10',
-    time: '10:00',
-    boardMemberIds: [3]
+    time: '10:00 AM',
+    boardMemberIds: [2]
   }
 ];
+
+function enrichSchedule(schedule) {
+  const thesis = findThesisById(schedule.thesisId);
+  const boardMembers = (schedule.boardMemberIds || []).map((id) => {
+    const user = findUserById(id);
+    return user ? { id: user.id, name: user.name, email: user.email } : { id, name: `Faculty #${id}` };
+  });
+
+  return {
+    ...schedule,
+    thesisTitle: thesis ? thesis.title : `Thesis #${schedule.thesisId}`,
+    studentName: thesis ? thesis.studentName : 'Unknown Student',
+    boardMembers
+  };
+}
 
 const router = Router();
 
 router.get('/', (_req, res) => {
-  res.json({ items: schedules });
+  const enriched = schedules.map(enrichSchedule);
+  res.json({ items: enriched, count: enriched.length });
 });
 
 router.post('/', (req, res) => {
@@ -35,7 +53,7 @@ router.post('/', (req, res) => {
 
   schedules.push(schedule);
 
-  return res.status(201).json({ message: 'Defense schedule saved', schedule });
+  return res.status(201).json({ message: 'Defense schedule saved', schedule: enrichSchedule(schedule) });
 });
 
 export default router;

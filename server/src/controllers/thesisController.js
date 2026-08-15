@@ -1,10 +1,12 @@
 import {
   THESIS_STATUSES,
+  assignSupervisor,
   createThesis,
   findThesisById,
   getAllTheses,
   updateThesisStatus
 } from '../models/thesisModel.js';
+import { findUserById } from '../store/usersStore.js';
 import { searchThesesByTitleOrStudent } from '../services/repositoryService.js';
 
 export function listTheses(_req, res) {
@@ -58,4 +60,23 @@ export function updateThesisStatusHandler(req, res) {
   }
 
   return res.json({ message: 'Thesis status updated', thesis });
+}
+
+export function assignSupervisorHandler(req, res) {
+  const { supervisorId } = req.body;
+
+  if (!supervisorId) {
+    return res.status(400).json({ message: 'supervisorId is required' });
+  }
+
+  const supervisorUser = findUserById(supervisorId);
+  const supervisorName = supervisorUser ? supervisorUser.name : `Faculty #${supervisorId}`;
+
+  const thesis = assignSupervisor(req.params.id, supervisorId, supervisorName);
+
+  if (!thesis) {
+    return res.status(404).json({ message: 'Thesis not found' });
+  }
+
+  return res.json({ message: 'Supervisor assigned successfully', thesis });
 }

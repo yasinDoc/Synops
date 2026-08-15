@@ -22,6 +22,10 @@ export const users = [
   }
 ];
 
+export function getAllUsers() {
+  return users.map(({ password, ...user }) => user);
+}
+
 export function findUserByEmail(email) {
   return users.find((user) => user.email.toLowerCase() === String(email).toLowerCase());
 }
@@ -29,3 +33,9 @@ export function findUserByEmail(email) {
 export function findUserById(id) {
   return users.find((user) => user.id === Number(id));
 }
+
+export function getFacultyUsers() {
+  return users
+    .filter((user) => user.role === 'faculty')
+    .map(({ password, ...user }) => user);
+}

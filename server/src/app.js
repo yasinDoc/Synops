@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth.js';
+import adminRouter from './routes/admin.js';
 import commentsRouter from './routes/comments.js';
 import similarityRouter from './routes/similarity.js';
 import notificationsRouter from './routes/notifications.js';
@@ -22,6 +23,7 @@ export function createApp() {
 
   app.use('/api/health', healthRouter);
   app.use('/api/auth', authRouter);
+  app.use('/api/admin', adminRouter);
   app.use('/api/theses', thesisRouter);
   app.use('/api/submissions', submissionsRouter);
   app.use('/api/comments', commentsRouter);

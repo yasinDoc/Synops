@@ -1,51 +1,88 @@
-CREATE TABLE users (
+-- Synops Trimmed Database Schema
+
+CREATE TABLE IF NOT EXISTS Users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   email VARCHAR(191) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   role VARCHAR(50) NOT NULL,
-  department_id INT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE departments (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(150) NOT NULL UNIQUE
-);
-
-CREATE TABLE students (
-  user_id INT PRIMARY KEY,
-  student_id_number VARCHAR(100) NOT NULL,
-  batch VARCHAR(50) NOT NULL,
-  supervisor_id INT NULL,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE faculty (
-  user_id INT PRIMARY KEY,
-  department_id INT NOT NULL,
-  designation VARCHAR(100) NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (department_id) REFERENCES departments(id)
-);
-
-CREATE TABLE theses (
+CREATE TABLE IF NOT EXISTS Thesis (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
   abstract TEXT NOT NULL,
-  research_area VARCHAR(255),
   student_id INT NOT NULL,
   supervisor_id INT NULL,
-  status VARCHAR(50) NOT NULL DEFAULT 'draft',
+  status VARCHAR(50) NOT NULL DEFAULT 'submitted',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES Users(id),
+  FOREIGN KEY (supervisor_id) REFERENCES Users(id)
 );
 
-CREATE TABLE proposals (
+CREATE TABLE IF NOT EXISTS Submission (
   id INT AUTO_INCREMENT PRIMARY KEY,
   thesis_id INT NOT NULL,
+  file_path VARCHAR(255) NOT NULL,
+  version_no INT NOT NULL DEFAULT 1,
   submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  status VARCHAR(50) NOT NULL DEFAULT 'pending',
-  FOREIGN KEY (thesis_id) REFERENCES theses(id)
+  FOREIGN KEY (thesis_id) REFERENCES Thesis(id)
+);
+
+CREATE TABLE IF NOT EXISTS SimilarityResult (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  submission_id INT NOT NULL,
+  similarity_pct DECIMAL(5,2) NOT NULL,
+  matched_note TEXT,
+  FOREIGN KEY (submission_id) REFERENCES Submission(id)
+);
+
+CREATE TABLE IF NOT EXISTS Comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  thesis_id INT NOT NULL,
+  author_id INT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (thesis_id) REFERENCES Thesis(id),
+  FOREIGN KEY (author_id) REFERENCES Users(id)
+);
+
+CREATE TABLE IF NOT EXISTS DefenseSchedule (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  thesis_id INT NOT NULL,
+  room VARCHAR(100) NOT NULL,
+  date DATE NOT NULL,
+  time VARCHAR(50) NOT NULL,
+  FOREIGN KEY (thesis_id) REFERENCES Thesis(id)
+);
+
+CREATE TABLE IF NOT EXISTS BoardMembers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  defense_id INT NOT NULL,
+  faculty_id INT NOT NULL,
+  FOREIGN KEY (defense_id) REFERENCES DefenseSchedule(id),
+  FOREIGN KEY (faculty_id) REFERENCES Users(id)
+);
+
+CREATE TABLE IF NOT EXISTS Evaluation (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  defense_id INT NOT NULL,
+  board_member_id INT NOT NULL,
+  report_marks DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  presentation_marks DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  viva_marks DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  total_marks DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  FOREIGN KEY (defense_id) REFERENCES DefenseSchedule(id),
+  FOREIGN KEY (board_member_id) REFERENCES Users(id)
+);
+
+CREATE TABLE IF NOT EXISTS Notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES Users(id)
 );

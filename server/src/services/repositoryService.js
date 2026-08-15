@@ -8,6 +8,7 @@ export function searchThesesByTitleOrStudent(theses, query) {
   return theses.filter((thesis) => {
     const title = String(thesis.title || '').toLowerCase();
     const studentName = String(thesis.studentName || '').toLowerCase();
-    return title.includes(text) || studentName.includes(text);
+    const abstract = String(thesis.abstract || '').toLowerCase();
+    return title.includes(text) || studentName.includes(text) || abstract.includes(text);
   });
 }

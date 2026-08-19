@@ -1,41 +1,28 @@
 import { Router } from 'express';
-
-const schedules = [
-  {
-    id: 1,
-    thesisId: 1,
-    room: 'A-204',
-    date: '2026-09-10',
-    time: '10:00',
-    boardMemberIds: [3]
-  }
-];
+import {
+  listDefenseSchedules,
+  getDefenseSchedule,
+  scheduleDefense,
+  editDefenseSchedule,
+  assignBoardMembersToDefense
+} from '../controllers/defenseController.js';
+import { requireAuth, requireRole } from '../middlewares/auth.js';
 
 const router = Router();
 
-router.get('/', (_req, res) => {
-  res.json({ items: schedules });
-});
+// List all defense schedules
+router.get('/', listDefenseSchedules);
 
-router.post('/', (req, res) => {
-  const { thesisId, room, date, time, boardMemberIds } = req.body;
+// Get single defense schedule
+router.get('/:id', getDefenseSchedule);
 
-  if (!thesisId || !room || !date || !time) {
-    return res.status(400).json({ message: 'thesisId, room, date, and time are required' });
-  }
+// Create defense schedule (admin/coordinator)
+router.post('/', requireRole('admin', 'coordinator'), scheduleDefense);
 
-  const schedule = {
-    id: schedules.length + 1,
-    thesisId: Number(thesisId),
-    room,
-    date,
-    time,
-    boardMemberIds: Array.isArray(boardMemberIds) ? boardMemberIds.map(Number) : []
-  };
+// Update defense schedule (admin/coordinator)
+router.put('/:id', requireRole('admin', 'coordinator'), editDefenseSchedule);
 
-  schedules.push(schedule);
-
-  return res.status(201).json({ message: 'Defense schedule saved', schedule });
-});
+// Assign board members to defense schedule
+router.post('/:id/assign-board', requireRole('admin', 'coordinator'), assignBoardMembersToDefense);
 
 export default router;

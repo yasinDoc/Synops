@@ -87,13 +87,13 @@ Explicitly cut: department management, analytics reports, semester archiving.
 
 Owns: auth and defense/evaluation/notifications.
 
-- [ ] JWT login/logout API
-- [ ] Role middleware using `req.user.role`
-- [ ] 3 seeded test accounts, one per role; skip email verification and forgot password
-- [ ] `DefenseSchedule` model + API: create/update schedule, assign board members
-- [ ] `Evaluation` model + API: enter marks and auto-calculate total
-- [ ] `Notifications` model + simple in-app API
-- [ ] Notification triggers for proposal approved, comment added, defense scheduled
+- [x] JWT login/logout API
+- [x] Role middleware using `req.user.role`
+- [x] 3 seeded test accounts, one per role; skip email verification and forgot password
+- [x] `DefenseSchedule` model + API: create/update schedule, assign board members
+- [x] `Evaluation` model + API: enter marks and auto-calculate total
+- [x] `Notifications` model + simple in-app API
+- [x] Notification triggers for proposal approved, comment added, defense scheduled
 
 Explicitly cut: email verification, forgot password, real email or push notifications, multiple evaluator averaging.
 

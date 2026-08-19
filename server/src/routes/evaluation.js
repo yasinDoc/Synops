@@ -1,52 +1,28 @@
 import { Router } from 'express';
-
-const evaluations = [
-  {
-    id: 1,
-    defenseId: 1,
-    boardMemberId: 3,
-    reportMarks: 32,
-    presentationMarks: 16,
-    vivaMarks: 34,
-    totalMarks: 82
-  }
-];
+import {
+  listEvaluations,
+  getDefenseEvaluations,
+  getSingleEvaluation,
+  submitEvaluation,
+  editEvaluation
+} from '../controllers/evaluationController.js';
+import { requireAuth, requireRole } from '../middlewares/auth.js';
 
 const router = Router();
 
-router.get('/defense/:defenseId', (req, res) => {
-  const defenseId = Number(req.params.defenseId);
-  res.json({ items: evaluations.filter((evaluation) => evaluation.defenseId === defenseId) });
-});
+// List all evaluations
+router.get('/', listEvaluations);
 
-router.post('/', (req, res) => {
-  const { defenseId, boardMemberId, reportMarks, presentationMarks, vivaMarks } = req.body;
+// Get evaluations for a specific defense
+router.get('/defense/:defenseId', getDefenseEvaluations);
 
-  if (
-    defenseId === undefined ||
-    boardMemberId === undefined ||
-    reportMarks === undefined ||
-    presentationMarks === undefined ||
-    vivaMarks === undefined
-  ) {
-    return res.status(400).json({ message: 'all evaluation marks are required' });
-  }
+// Get single evaluation by ID
+router.get('/:id', getSingleEvaluation);
 
-  const totalMarks = Number(reportMarks) + Number(presentationMarks) + Number(vivaMarks);
+// Submit marks (faculty, admin/coordinator)
+router.post('/', requireRole('faculty', 'admin', 'coordinator'), submitEvaluation);
 
-  const evaluation = {
-    id: evaluations.length + 1,
-    defenseId: Number(defenseId),
-    boardMemberId: Number(boardMemberId),
-    reportMarks: Number(reportMarks),
-    presentationMarks: Number(presentationMarks),
-    vivaMarks: Number(vivaMarks),
-    totalMarks
-  };
-
-  evaluations.push(evaluation);
-
-  return res.status(201).json({ message: 'Evaluation saved', evaluation });
-});
+// Update marks (faculty, admin/coordinator)
+router.put('/:id', requireRole('faculty', 'admin', 'coordinator'), editEvaluation);
 
 export default router;

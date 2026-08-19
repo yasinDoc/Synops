@@ -40,12 +40,12 @@ Explicitly cut: real plagiarism detection, DOCX to Markdown conversion, advanced
 
 Owns: Student-facing UI, wired to real endpoints as they land.
 
-- [ ] React project setup and routing shell (student, faculty, admin route groups)
-- [ ] Login page + role-based redirect after auth
-- [ ] Student dashboard: proposal status, submission list, defense info
-- [ ] Proposal submission form that calls the real API
-- [ ] Submission/file upload form that calls the real API
-- [ ] Similarity result display with the fake percentage and note
+- [x] React project setup and routing shell (student, faculty, admin route groups)
+- [x] Login page + role-based redirect after auth
+- [x] Student dashboard: proposal status, submission list, defense info
+- [x] Proposal submission form that calls the real API
+- [x] Submission/file upload form that calls the real API
+- [x] Similarity result display with the fake percentage and note
 
 Explicitly cut: polished design system, multi-department UI.
 
@@ -96,11 +96,11 @@ Explicitly cut: department management, analytics reports, semester archiving.
 
 Owns: auth and defense/evaluation.
 
-- [ ] JWT login/logout API
-- [ ] Role middleware using `req.user.role`
-- [ ] 3 seeded test accounts, one per role; skip email verification and forgot password
-- [ ] `DefenseSchedule` model + API: create/update schedule, assign board members
-- [ ] `Evaluation` model + API: enter marks and auto-calculate total
+- [x] JWT login/logout API
+- [x] Role middleware using `req.user.role`
+- [x] 3 seeded test accounts, one per role; skip email verification and forgot password
+- [x] `DefenseSchedule` model + API: create/update schedule, assign board members
+- [x] `Evaluation` model + API: enter marks and auto-calculate total
 
 Explicitly cut: email verification, forgot password, multiple evaluator averaging.
 

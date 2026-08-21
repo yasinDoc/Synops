@@ -66,13 +66,13 @@ Explicitly cut: notification bell unless time remains, real email or push notifi
 
 Owns: trimmed DB schema first, then admin UI.
 
-- [ ] Finalize trimmed schema first
-- [ ] `database/schema.sql` plus seed script with 3 test users and 1–2 sample theses
-- [ ] Admin user list view
-- [ ] Admin assign supervisor to a thesis
-- [ ] Admin defense scheduling form: room, date, time, board member(s)
-- [ ] Repository search page using Yasin's endpoint
-- [ ] Admin view of all theses and status in a simple table
+- [x] Finalize trimmed schema first
+- [x] `database/schema.sql` plus seed script with 3 test users and 1–2 sample theses
+- [x] Admin user list view
+- [x] Admin assign supervisor to a thesis
+- [x] Admin defense scheduling form: room, date, time, board member(s)
+- [x] Repository search page using Yasin's endpoint
+- [x] Admin view of all theses and status in a simple table
 
 Trimmed schema:
 

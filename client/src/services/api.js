@@ -342,5 +342,308 @@ export const api = {
         ]
       };
     });
+  },
+
+  // ==========================================
+  // Faculty Supervisor & Notifications API
+  // ==========================================
+
+  async getFacultyTheses(facultyId = 'FAC-009') {
+    return request('/theses', { method: 'GET' }, async () => {
+      const DEFAULT_FACULTY_THESES = [
+        {
+          id: 'thesis-101',
+          studentId: '242011912',
+          studentName: 'Tutul Das Antu',
+          matricId: '242011912',
+          title: 'AI-Powered Distributed Code Evaluation and Plagiarism Detection Engine',
+          domain: 'Artificial Intelligence & Software Engineering',
+          status: 'UNDER_REVIEW',
+          submissionDate: 'Aug 19, 2026',
+          updatedAt: 'Aug 21, 2026',
+          supervisorId: facultyId,
+          supervisorName: 'Dr. Anisur Rahman',
+          abstract: 'This research presents a novel transformer-based semantic code matching architecture designed to analyze abstract syntax trees and structural patterns across student submissions, ensuring high-accuracy academic integrity enforcement with minimal false positives.',
+          objectives: [
+            'Design an AST normalization parser for multiple programming languages (C++, Python, Java).',
+            'Develop a graph neural network model to detect semantic isomorphism in obfuscated code.',
+            'Benchmark detection accuracy against MOSS and JPlag on a corpus of 10,000 university programming submissions.'
+          ],
+          documents: [
+            { name: 'Tutul_Thesis_Proposal_Draft_v2.pdf', size: '2.4 MB', date: 'Aug 19, 2026' },
+            { name: 'Ethics_And_Dataset_Clearance.pdf', size: '480 KB', date: 'Aug 12, 2026' }
+          ],
+          defenseDetails: null
+        },
+        {
+          id: 'thesis-102',
+          studentId: '242012012',
+          studentName: 'Sarah Chen',
+          matricId: '242012012',
+          title: 'Hybrid Quantum-Classical Attention Architectures for Low-Resource Cross-Lingual NLP',
+          domain: 'Quantum Computing & NLP',
+          status: 'APPROVED',
+          submissionDate: 'Aug 10, 2026',
+          updatedAt: 'Aug 15, 2026',
+          supervisorId: facultyId,
+          supervisorName: 'Dr. Anisur Rahman',
+          abstract: 'Exploring Parameterized Quantum Circuits within Transformer attention heads to calculate semantic entanglement across low-resource dialects.',
+          objectives: [
+            'Formulate a 12-qubit variational attention mechanism compatible with IBM Qiskit Runtime.',
+            'Evaluate cross-lingual semantic fidelity across 14 under-represented languages.'
+          ],
+          documents: [
+            { name: 'Sarah_Chen_Quantum_NLP_Proposal.pdf', size: '3.1 MB', date: 'Aug 10, 2026' }
+          ],
+          defenseDetails: null
+        },
+        {
+          id: 'thesis-103',
+          studentId: '242012110',
+          studentName: 'David Kim',
+          matricId: '242012110',
+          title: 'Real-Time Adaptive Neuromorphic Control for Upper-Limb Bio-Robotic Prosthetics',
+          domain: 'Neuromorphic Robotics',
+          status: 'DEFENSE_SCHEDULED',
+          submissionDate: 'Jul 28, 2026',
+          updatedAt: 'Aug 18, 2026',
+          supervisorId: facultyId,
+          supervisorName: 'Dr. Anisur Rahman',
+          abstract: 'Spiking neural network decoders paired with event-based sEMG arrays for sub-8ms prosthetic dexterity.',
+          objectives: [
+            'Develop event-driven sEMG processing pipeline on Intel Loihi 2.',
+            'Conduct clinical trials with transradial amputee participants.'
+          ],
+          documents: [
+            { name: 'David_Kim_Final_Thesis_Manuscript.pdf', size: '8.4 MB', date: 'Aug 02, 2026' }
+          ],
+          defenseDetails: {
+            date: '2026-10-14',
+            dateFormatted: 'Oct 14, 2026 at 10:00 AM',
+            venue: 'Auditorium Hall B & Zoom Hybrid Room #302',
+            committee: 'Dr. Anisur Rahman (Chair), Dr. Evelyn Reed, Dr. Samuel Kim'
+          }
+        }
+      ];
+
+      const stored = getStorage('faculty_theses', DEFAULT_FACULTY_THESES);
+      return { success: true, theses: stored };
+    });
+  },
+
+  async getThesisById(thesisId) {
+    return request(`/theses/${thesisId}`, { method: 'GET' }, async () => {
+      const res = await this.getFacultyTheses();
+      const thesis = res.theses.find(t => String(t.id) === String(thesisId)) || res.theses[0];
+      return { success: true, thesis };
+    });
+  },
+
+  async updateThesisDecision(thesisId, decision, extra = {}) {
+    const statusMap = {
+      'APPROVED': 'APPROVED',
+      'REJECTED': 'REJECTED',
+      'REVISION_REQUIRED': 'REVISION_REQUIRED',
+      'DEFENSE_SCHEDULED': 'DEFENSE_SCHEDULED'
+    };
+
+    const newStatus = statusMap[decision] || decision;
+
+    return request(`/theses/${thesisId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: newStatus })
+    }, async () => {
+      const res = await this.getFacultyTheses();
+      const currentTheses = res.theses;
+      const target = currentTheses.find(t => String(t.id) === String(thesisId)) || currentTheses[0];
+
+      target.status = newStatus;
+      target.updatedAt = 'Just now';
+
+      if (decision === 'DEFENSE_SCHEDULED' && extra.defense) {
+        target.defenseDetails = {
+          date: extra.defense.date,
+          dateFormatted: `${extra.defense.date} at ${extra.defense.time}`,
+          venue: extra.defense.venue,
+          committee: extra.defense.committee
+        };
+      }
+
+      setStorage('faculty_theses', currentTheses);
+
+      // Trigger respective in-app notification for the candidate
+      if (decision === 'APPROVED') {
+        await this.triggerNotification({
+          userId: target.studentId || 1,
+          type: 'PROPOSAL_APPROVED',
+          title: 'Thesis Proposal Approved 🎉',
+          message: `Dr. Anisur Rahman formally approved your proposal "${target.title}". ${extra.note ? `Note: "${extra.note}"` : ''}`,
+          thesisId: target.id
+        });
+      } else if (decision === 'DEFENSE_SCHEDULED') {
+        await this.triggerNotification({
+          userId: target.studentId || 1,
+          type: 'DEFENSE_SCHEDULED',
+          title: 'Oral Thesis Defense Scheduled 🎯',
+          message: `Oral defense scheduled for ${target.defenseDetails.dateFormatted} at ${target.defenseDetails.venue}.`,
+          thesisId: target.id
+        });
+      } else if (decision === 'REVISION_REQUIRED') {
+        await this.triggerNotification({
+          userId: target.studentId || 1,
+          type: 'REVISION_REQUIRED',
+          title: 'Thesis Revisions Requested 📝',
+          message: `Supervisor requested revisions on "${target.title}". Feedback: ${extra.note || 'See comments'}`,
+          thesisId: target.id
+        });
+      } else if (decision === 'REJECTED') {
+        await this.triggerNotification({
+          userId: target.studentId || 1,
+          type: 'PROPOSAL_REJECTED',
+          title: 'Proposal Rejected ❌',
+          message: `Your thesis proposal "${target.title}" was rejected. Reason: ${extra.reason || 'Not approved'}`,
+          thesisId: target.id
+        });
+      }
+
+      return { success: true, message: `Status updated to ${newStatus}`, thesis: target };
+    });
+  },
+
+  // 1-Level Comments API
+  async getThesisComments(thesisId) {
+    return request(`/comments/${thesisId}`, { method: 'GET' }, async () => {
+      const DEFAULT_COMMENTS = [
+        {
+          id: 1,
+          thesisId: 'thesis-101',
+          authorId: 'FAC-009',
+          authorName: 'Dr. Anisur Rahman',
+          authorRole: 'SUPERVISOR',
+          tag: 'Methodology Revision',
+          content: 'Tutul, the AST comparison algorithm looks solid. Please ensure you also benchmark runtime complexity against dense graph isomorphic solvers.',
+          createdAt: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+          id: 2,
+          thesisId: 'thesis-101',
+          authorId: '242011912',
+          authorName: 'Tutul Das Antu',
+          authorRole: 'STUDENT',
+          tag: 'General Feedback',
+          content: 'Thank you Sir! I have added the big-O runtime analysis and graph tree compression metrics in section 3.3.',
+          createdAt: new Date(Date.now() - 3600000).toISOString()
+        }
+      ];
+
+      const key = `comments_${thesisId}`;
+      const stored = getStorage(key, DEFAULT_COMMENTS);
+      return { success: true, comments: stored };
+    });
+  },
+
+  async postComment(thesisId, { authorId, authorName, authorRole, content, tag }) {
+    return request(`/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ thesisId, authorId, content })
+    }, async () => {
+      const key = `comments_${thesisId}`;
+      const res = await this.getThesisComments(thesisId);
+      const list = res.comments;
+
+      const newComment = {
+        id: Date.now(),
+        thesisId: String(thesisId),
+        authorId: authorId || 'FAC-009',
+        authorName: authorName || 'Dr. Anisur Rahman',
+        authorRole: authorRole || 'SUPERVISOR',
+        content,
+        tag: tag || 'General Feedback',
+        createdAt: new Date().toISOString()
+      };
+
+      const updated = [...list, newComment];
+      setStorage(key, updated);
+
+      // Trigger in-app notification to the counterpart
+      await this.triggerNotification({
+        userId: authorRole === 'STUDENT' ? 'FAC-009' : '242011912',
+        type: 'COMMENT_ADDED',
+        title: `New Comment from ${authorName}`,
+        message: `${content.substring(0, 75)}${content.length > 75 ? '...' : ''}`,
+        thesisId: thesisId
+      });
+
+      return { success: true, comment: newComment };
+    });
+  },
+
+  // Notifications API
+  async getUserNotifications(userId = 1) {
+    return request(`/notifications/${userId}`, { method: 'GET' }, async () => {
+      const DEFAULT_NOTIFICATIONS = [
+        {
+          id: 101,
+          userId: userId,
+          type: 'PROPOSAL_APPROVED',
+          title: 'Thesis Proposal Approved 🎉',
+          message: 'Dr. Anisur Rahman approved proposal "AI-Powered Distributed Code Evaluation Engine".',
+          thesisId: 'thesis-101',
+          isRead: false,
+          createdAt: new Date(Date.now() - 1800000).toISOString()
+        },
+        {
+          id: 102,
+          userId: userId,
+          type: 'COMMENT_ADDED',
+          title: 'New Review Comment',
+          message: 'Dr. Anisur Rahman posted a comment on your proposal methodology.',
+          thesisId: 'thesis-101',
+          isRead: true,
+          createdAt: new Date(Date.now() - 86400000).toISOString()
+        }
+      ];
+
+      const stored = getStorage(`notifications_${userId}`, DEFAULT_NOTIFICATIONS);
+      return { success: true, notifications: stored };
+    });
+  },
+
+  async triggerNotification({ userId, message, type = 'general', title, thesisId }) {
+    return request(`/notifications`, {
+      method: 'POST',
+      body: JSON.stringify({ userId, message, type })
+    }, async () => {
+      const res = await this.getUserNotifications(userId);
+      const list = res.notifications;
+
+      const newNotif = {
+        id: Date.now(),
+        userId,
+        type,
+        title: title || (type === 'PROPOSAL_APPROVED' ? 'Proposal Approved' : 'New Notification'),
+        message,
+        thesisId: thesisId || 'thesis-101',
+        isRead: false,
+        createdAt: new Date().toISOString()
+      };
+
+      const updated = [newNotif, ...list];
+      setStorage(`notifications_${userId}`, updated);
+      return { success: true, notification: newNotif };
+    });
+  },
+
+  async markNotificationAsRead(notifId) {
+    return request(`/notifications/${notifId}/read`, { method: 'PATCH' }, async () => {
+      return { success: true };
+    });
+  },
+
+  async markAllNotificationsAsRead(userId) {
+    const res = await this.getUserNotifications(userId);
+    const updated = res.notifications.map(n => ({ ...n, isRead: true }));
+    setStorage(`notifications_${userId}`, updated);
+    return { success: true };
   }
 };

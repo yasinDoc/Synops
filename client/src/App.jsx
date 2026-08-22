@@ -7,7 +7,9 @@ import { StudentLayout } from './components/layout/StudentLayout';
 import { StudentDashboard } from './pages/student/StudentDashboard';
 import { ProposalForm } from './pages/student/ProposalForm';
 import { SubmissionForm } from './pages/student/SubmissionForm';
-import { FacultyPlaceholder } from './pages/faculty/FacultyPlaceholder';
+import { FacultyLayout } from './components/layout/FacultyLayout';
+import { FacultyDashboard } from './pages/faculty/FacultyDashboard';
+import { FacultyReviewScreen } from './pages/faculty/FacultyReviewScreen';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 
 const RootRedirect = () => {
@@ -47,17 +49,18 @@ function App() {
             <Route path="submissions/new" element={<SubmissionForm />} />
           </Route>
 
-          {/* Faculty Route Group */}
+          {/* Faculty Route Group (Mahim - Supervisor Dashboard, Review, 1-Level Comments) */}
           <Route
             path="/faculty"
             element={
               <ProtectedRoute allowedRoles={['faculty']}>
-                <FacultyPlaceholder />
+                <FacultyLayout />
               </ProtectedRoute>
             }
           >
             <Route index element={<Navigate to="/faculty/dashboard" replace />} />
-            <Route path="dashboard" element={<FacultyPlaceholder />} />
+            <Route path="dashboard" element={<FacultyDashboard />} />
+            <Route path="review/:thesisId" element={<FacultyReviewScreen />} />
           </Route>
 
           {/* Admin Route Group */}

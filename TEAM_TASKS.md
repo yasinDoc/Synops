@@ -53,12 +53,12 @@ Explicitly cut: polished design system, multi-department UI.
 
 Owns: Faculty-facing UI + in-app notifications.
 
-- [ ] Supervisor dashboard: list of assigned students and thesis status
-- [ ] Supervisor review screen: approve, reject, comment
-- [ ] Comment thread UI with one level only
-- [ ] Basic styling pass after the full loop works
-- [ ] `Notifications` model + simple in-app API
-- [ ] Notification triggers for proposal approved, comment added, defense scheduled
+- [x] Supervisor dashboard: list of assigned students and thesis status
+- [x] Supervisor review screen: approve, reject, comment
+- [x] Comment thread UI with one level only
+- [x] Basic styling pass after the full loop works
+- [x] `Notifications` model + simple in-app API
+- [x] Notification triggers for proposal approved, comment added, defense scheduled
 
 Explicitly cut: notification bell unless time remains, real email or push notifications.
 

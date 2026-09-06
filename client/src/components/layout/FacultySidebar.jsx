@@ -17,6 +17,12 @@ export const FacultySidebar = () => {
       label: 'Supervisor Roster',
       icon: LayoutDashboard,
       badge: 'Main'
+    },
+    {
+      to: '/faculty/defense-schedule',
+      label: 'Defense Schedule',
+      icon: CalendarCheck,
+      badge: null
     }
   ];
 

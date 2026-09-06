@@ -8,8 +8,12 @@ export function checkSimilarity(req, res) {
     return res.status(400).json({ message: 'submissionId is required' });
   }
 
-  const result = runFakeSimilarityCheck(submissionId);
-  return res.status(201).json({ message: 'Fake similarity check completed', result });
+  try {
+    const result = runFakeSimilarityCheck(submissionId);
+    return res.status(201).json({ message: 'Similarity check completed', result });
+  } catch (err) {
+    return res.status(404).json({ message: err.message || 'Similarity check failed' });
+  }
 }
 
 export function getSimilarityBySubmission(req, res) {

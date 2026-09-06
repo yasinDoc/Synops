@@ -10,6 +10,7 @@ import { SubmissionForm } from './pages/student/SubmissionForm';
 import { FacultyLayout } from './components/layout/FacultyLayout';
 import { FacultyDashboard } from './pages/faculty/FacultyDashboard';
 import { FacultyReviewScreen } from './pages/faculty/FacultyReviewScreen';
+import { DepartmentDefenseSchedule } from './pages/faculty/DepartmentDefenseSchedule';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 
 const RootRedirect = () => {
@@ -60,6 +61,7 @@ function App() {
           >
             <Route index element={<Navigate to="/faculty/dashboard" replace />} />
             <Route path="dashboard" element={<FacultyDashboard />} />
+            <Route path="defense-schedule" element={<DepartmentDefenseSchedule />} />
             <Route path="review/:thesisId" element={<FacultyReviewScreen />} />
           </Route>
 

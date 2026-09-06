@@ -348,6 +348,24 @@ export const api = {
   // Faculty Supervisor & Notifications API
   // ==========================================
 
+  async getAllDefenseSchedules() {
+    return request('/defense', { method: 'GET' }, async () => {
+      const DEFAULT_DEFENSE_SCHEDULES = [
+        {
+          id: 1,
+          thesisId: 1,
+          thesisTitle: 'AI-Based Thesis Management System',
+          studentName: 'Demo Student',
+          room: 'Auditorium A-204',
+          date: '2026-09-15',
+          time: '10:00 AM',
+          boardMembers: [{ id: 2, name: 'Demo Faculty', email: 'faculty@synops.local' }]
+        }
+      ];
+      return { items: DEFAULT_DEFENSE_SCHEDULES };
+    });
+  },
+
   async getFacultyTheses(facultyId = 'FAC-009') {
     return request('/theses', { method: 'GET' }, async () => {
       const DEFAULT_FACULTY_THESES = [

@@ -4,7 +4,8 @@ const submissions = [
     thesisId: 1,
     filePath: '/uploads/demo-report.pdf',
     versionNo: 1,
-    submittedAt: new Date().toISOString()
+    submittedAt: new Date().toISOString(),
+    extractedText: ''
   }
 ];
 
@@ -16,14 +17,15 @@ export function findSubmissionById(id) {
   return submissions.find((item) => item.id === Number(id));
 }
 
-export function createSubmission({ thesisId, filePath }) {
+export function createSubmission({ thesisId, filePath, extractedText = '' }) {
   const normalizedThesisId = Number(thesisId);
   const submission = {
     id: submissions.length + 1,
     thesisId: normalizedThesisId,
     filePath,
     versionNo: submissions.filter((item) => item.thesisId === normalizedThesisId).length + 1,
-    submittedAt: new Date().toISOString()
+    submittedAt: new Date().toISOString(),
+    extractedText
   };
 
   submissions.push(submission);
